@@ -1,0 +1,31 @@
+body {
+  display: flex;
+  justify-content: center;
+  user-select: none;
+}
+
+.gridContainer {
+  border: 1px solid black;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  height: 20px;
+  width: 20px;
+  /* border: 1px solid black; */
+}
+
+h1 {
+  text-align: center;
+}
+
+.on {
+  background-color: brown;
+}
+
+.wall {
+  background-color: grey;
+}
