@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+// import depthFirstTraversal from './algorithms/depthFirstTraversal';
+import breadthFirstTraversal from './algorithms/breadthFirstTraversal';
+import getUnvisitedNeighbors from './algorithms/helperFunctions';
 import './Grid.css';
 
-const numCol = 10;
-const numRow = 10;
+const numCol = 15;
+const numRow = 15;
 
 /*
 {
@@ -18,16 +21,49 @@ const generateGrid = () => {
   for (let i = 0; i < numCol; i++) {
     grid.push([]);
     for (let j = 0; j < numRow; j++) {
-      grid[i].push({ on: false, wall: false, visited: false });
+      grid[i].push({ on: true, wall: false, visited: false });
     }
   }
   return grid;
 };
 
 const Grid = () => {
+  // State related to creating and modifying the grid
   const [grid, setGrid] = useState(() => generateGrid());
   const [leftMousedown, setLeftMousedown] = useState(false);
   const [rightMousedown, setRightMousedown] = useState(false);
+
+  // State and References related to running the simulation
+  const [running, setRunning] = useState(false);
+  const gridRef = useRef(grid);
+  const startingNode = useRef([7, 7]);
+  const stackOrQueue = useRef([startingNode.current]);
+
+  const runningReference = useRef(running);
+
+  const runSimulation = useCallback(() => {
+    if (!runningReference.current) return;
+    if (!stackOrQueue.current.length) {
+      setRunning(false);
+      return;
+    }
+    // console.log('hi');
+
+    setGrid((g) => {
+      let gridCopy = JSON.parse(JSON.stringify(g));
+
+      breadthFirstTraversal(
+        gridCopy,
+        stackOrQueue.current,
+        getUnvisitedNeighbors
+      );
+
+      gridRef.current = gridCopy;
+      return gridCopy;
+    });
+
+    setTimeout(runSimulation, 10);
+  }, []);
 
   const handleMousedown = (e) => {
     if (e.button === 0) {
@@ -95,7 +131,9 @@ const Grid = () => {
           style={{
             border: grid[i][j].on ? '1px solid black' : '1px solid transparent',
 
-            backgroundColor: grid[i][j].wall
+            backgroundColor: grid[i][j].visited
+              ? 'blue'
+              : grid[i][j].wall
               ? 'grey'
               : grid[i][j].on
               ? '#eee'
@@ -117,6 +155,19 @@ const Grid = () => {
       onContextMenu={(e) => e.preventDefault()}
     >
       <h1>Hiiii</h1>
+      <button
+        onClick={() => {
+          if (!running) {
+            runningReference.current = true;
+            runSimulation();
+          } else {
+            runningReference.current = false;
+          }
+          setRunning(!running);
+        }}
+      >
+        {running ? 'Stop' : 'Start'}
+      </button>
       <div className='gridContainer'>{gridRender}</div>
     </div>
   );

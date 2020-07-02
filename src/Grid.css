@@ -22,6 +22,10 @@ h1 {
   text-align: center;
 }
 
+.visited {
+  background-color: blue;
+}
+
 .on {
   background-color: brown;
 }
