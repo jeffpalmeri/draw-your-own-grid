@@ -1,66 +1,70 @@
-import React, { useState, useRef, useCallback } from 'react';
-// import depthFirstTraversal from './algorithms/depthFirstTraversal';
+import React, { useState, useCallback, useRef } from 'react';
+import Instructions from './Instructions';
 import breadthFirstTraversal from './algorithms/breadthFirstTraversal';
-import getUnvisitedNeighbors from './algorithms/helperFunctions';
-import './Grid.css';
+import depthFristTraversal from './algorithms/depthFirstTraversal';
+import { getUnvisitedNeighbors } from './algorithms/helperFunctions';
+import './App.css';
 
-const numCol = 15;
-const numRow = 15;
+const numRows = 20;
+const numColumns = 20;
 
-/*
-{
-  on: true,
-  wall: false,
-  visited: false
-}
-
-*/
-
-const generateGrid = () => {
+const generateEmptyGrid = () => {
   let grid = [];
-  for (let i = 0; i < numCol; i++) {
+  for (let i = 0; i < numRows; i++) {
     grid.push([]);
-    for (let j = 0; j < numRow; j++) {
-      grid[i].push({ on: true, wall: false, visited: false });
+    for (let k = 0; k < numColumns; k++) {
+      grid[i].push({ visited: false, wall: false, on: true });
     }
   }
   return grid;
 };
 
 const Grid = () => {
-  // State related to creating and modifying the grid
-  const [grid, setGrid] = useState(() => generateGrid());
+  const [grid, setGrid] = useState(() => generateEmptyGrid());
   const [leftMousedown, setLeftMousedown] = useState(false);
   const [rightMousedown, setRightMousedown] = useState(false);
 
-  // State and References related to running the simulation
   const [running, setRunning] = useState(false);
+  const algorithm = useRef('');
   const gridRef = useRef(grid);
-  const startingNode = useRef([7, 7]);
-  const stackOrQueue = useRef([startingNode.current]);
+  const startingNode = useRef('');
+  const stack = useRef([startingNode.current]);
 
   const runningReference = useRef(running);
 
   const runSimulation = useCallback(() => {
     if (!runningReference.current) return;
-    if (!stackOrQueue.current.length) {
+    if (!stack.current.length) {
       setRunning(false);
       return;
     }
-    // console.log('hi');
 
     setGrid((g) => {
       let gridCopy = JSON.parse(JSON.stringify(g));
 
-      breadthFirstTraversal(
-        gridCopy,
-        stackOrQueue.current,
-        getUnvisitedNeighbors
-      );
+      if (algorithm.current === 'Breadth First') {
+        breadthFirstTraversal(gridCopy, stack.current, getUnvisitedNeighbors);
+      }
+      if (algorithm.current === 'Depth First') {
+        depthFristTraversal(gridCopy, stack.current, getUnvisitedNeighbors);
+      }
 
       gridRef.current = gridCopy;
       return gridCopy;
     });
+
+    let numberOfZeros = 0;
+    for (let row = 0; row < numRows; row++) {
+      for (let column = 0; column < numColumns; column++) {
+        if (gridRef.current[row][column].visited === true) {
+          numberOfZeros++;
+        }
+      }
+      if (numberOfZeros === numRows * numColumns) {
+        runningReference.current = false;
+        return setRunning(false);
+      }
+    }
 
     setTimeout(runSimulation, 10);
   }, []);
@@ -74,7 +78,7 @@ const Grid = () => {
     }
   };
 
-  const handleMouseup = (e) => {
+  const handleMouseup = (e, i, j) => {
     if (e.button === 0) {
       setLeftMousedown(false);
     }
@@ -83,10 +87,6 @@ const Grid = () => {
       setRightMousedown(false);
     }
   };
-
-  // const handleMouseLeave = () => {
-  //   setLeftMousedown(false);
-  // };
 
   const handleMouseEnter = (i, j) => {
     if (leftMousedown) {
@@ -97,50 +97,97 @@ const Grid = () => {
 
     if (rightMousedown) {
       let gridCopy = JSON.parse(JSON.stringify(grid));
-      console.log(gridCopy[i][j]);
       if (gridCopy[i][j].on) {
-        gridCopy[i][j].wall = !gridCopy[i][j].wall;
+        gridCopy[i][j].wall = true;
         setGrid(gridCopy);
       }
     }
   };
 
   const handleClick = (e, i, j) => {
-    if (e.button === 0) {
-      let gridCopy = JSON.parse(JSON.stringify(grid));
-      gridCopy[i][j].on = !gridCopy[i][j].on;
-      setGrid(gridCopy);
-    }
+    console.log(e.type);
+    let gridCopy = JSON.parse(JSON.stringify(grid));
+    console.log(e.button);
 
-    if (e.button === 2) {
+    if (startingNode.current === '' && e.button === 0) {
+      selectStartingNode(i, j);
+    } else if (
+      startingNode.current !== '' &&
+      gridCopy[i][j].visited &&
+      e.button === 0
+    ) {
       let gridCopy = JSON.parse(JSON.stringify(grid));
-      if (gridCopy[i][j].on) {
-        gridCopy[i][j].wall = !gridCopy[i][j].wall;
+      if (gridCopy[i][j].visited) {
+        gridCopy[i][j].visited = false;
         setGrid(gridCopy);
+        startingNode.current = '';
       }
     }
+    // else if (e.button === 0) {
+    //   // Functionality for turning cells on and off, which I don't want to include at the moment
+
+    //   let gridCopy = JSON.parse(JSON.stringify(grid));
+    //   gridCopy[i][j].on = !gridCopy[i][j].on;
+    //   setGrid(gridCopy);
+    // }
   };
 
-  const gridRender = grid.map((col, i) => (
+  const selectStartingNode = (i, j) => {
+    let gridCopy = JSON.parse(JSON.stringify(grid));
+    gridCopy[i][j].visited = grid[i][j].visited ? false : true;
+    startingNode.current = [i, j];
+    stack.current = [startingNode.current];
+    setGrid(gridCopy);
+  };
+
+  const resetGrid = () => {
+    let newGrid = generateEmptyGrid();
+    runningReference.current = false;
+    setGrid(newGrid);
+    gridRef.current = newGrid;
+    stack.current = [];
+    startingNode.current = '';
+    setRunning(false);
+  };
+
+  const selectAlgorithm = (e) => {
+    if (e.target.innerHTML === 'Breadth First') {
+      algorithm.current = 'Breadth First';
+    } else if (e.target.innerHTML === 'Depth First') {
+      algorithm.current = 'Depth First';
+    }
+    console.log(algorithm.current);
+  };
+
+  const handleDoubleClick = (i, j) => {
+    let gridCopy = JSON.parse(JSON.stringify(grid));
+    gridCopy[i][j].wall = !gridCopy[i][j].wall;
+    setGrid(gridCopy);
+  };
+
+  let gridRender = grid.map((row, i) => (
     <div className='row' key={i}>
-      {col.map((cell, j) => (
+      {row.map((col, j) => (
         <div
-          className='cell'
           key={`${i}-${j}`}
           onMouseEnter={() => handleMouseEnter(i, j)}
-          style={{
-            border: grid[i][j].on ? '1px solid black' : '1px solid transparent',
-
-            backgroundColor: grid[i][j].visited
-              ? 'blue'
-              : grid[i][j].wall
-              ? 'grey'
-              : grid[i][j].on
-              ? '#eee'
-              : 'transparent',
-          }}
           onClick={(e) => handleClick(e, i, j)}
-          onContextMenu={(e) => handleClick(e, i, j)}
+          onDoubleClick={() => handleDoubleClick(i, j)}
+          // onContextMenu={(e) => handleRightClick(e, i, j)}
+
+          style={{
+            width: 20,
+            height: 20,
+          }}
+          className={`cell ${
+            grid[i][j].visited
+              ? 'visited'
+              : grid[i][j].wall
+              ? 'wall'
+              : grid[i][j].on
+              ? 'on'
+              : ''
+          }`}
         ></div>
       ))}
     </div>
@@ -150,11 +197,8 @@ const Grid = () => {
     <div
       onMouseDown={(e) => handleMousedown(e)}
       onMouseUp={(e) => handleMouseup(e)}
-      // onMouseLeave={handleMouseLeave}
-      className='grid'
       onContextMenu={(e) => e.preventDefault()}
     >
-      <h1>Hiiii</h1>
       <button
         onClick={() => {
           if (!running) {
@@ -168,7 +212,26 @@ const Grid = () => {
       >
         {running ? 'Stop' : 'Start'}
       </button>
-      <div className='gridContainer'>{gridRender}</div>
+      <button
+        onClick={() => {
+          resetGrid();
+        }}
+      >
+        Reset
+      </button>
+      <button onClick={selectAlgorithm}>Breadth First</button>
+      <button onClick={selectAlgorithm}>Depth First</button>
+      <button
+        onClick={() => {
+          return new Promise((resolve, reject) => {
+            resolve(() => console.log('ji')).then(() => console.log('bye'));
+          }).catch(() => console.log('resolve'));
+        }}
+      >
+        Test
+      </button>
+      <div className='grid'>{gridRender} </div>
+      <Instructions />
     </div>
   );
 };

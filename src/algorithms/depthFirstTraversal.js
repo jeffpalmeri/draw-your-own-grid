@@ -4,15 +4,12 @@ const depthFirstTraversal = (gridCopy, queue, getUnivsitedNeighbors) => {
     let i = currentVertex[0];
     let j = currentVertex[1];
     let univsitedNeighbors = getUnivsitedNeighbors(gridCopy, i, j);
-    // console.log('unvisited neighbors: ', univsitedNeighbors);
 
     univsitedNeighbors.forEach((neighbor) => {
       queue.push(neighbor);
-      gridCopy[neighbor[0]][neighbor[1]].visited = true;
-      console.log(gridCopy[neighbor[0]][neighbor[1]]);
-      console.log(i, j, gridCopy[neighbor[0]][neighbor[1]].visited);
+      gridCopy[neighbor[0]][neighbor[1]].visited = 1;
     });
-    // gridCopy[i][j].visited = true;
+    // gridCopy[i][j] = 1;
   }
 };
 
