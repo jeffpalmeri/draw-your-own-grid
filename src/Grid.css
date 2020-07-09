@@ -22,7 +22,7 @@ h1 {
   text-align: center;
 }
 
-.visited {
+/* .visited {
   background-color: blue;
 }
 
@@ -33,3 +33,7 @@ h1 {
 .wall {
   background-color: grey;
 }
+
+.shortest-path {
+  background-color: greenyellow;
+} */

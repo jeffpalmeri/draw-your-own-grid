@@ -35,3 +35,8 @@ body {
   background-color: gray;
   border: 1px solid black;
 }
+
+.shortest-path {
+  background-color: greenyellow;
+  border: 1px solid black;
+}

@@ -7,9 +7,9 @@ const depthFirstTraversal = (gridCopy, queue, getUnivsitedNeighbors) => {
 
     univsitedNeighbors.forEach((neighbor) => {
       queue.push(neighbor);
-      gridCopy[neighbor[0]][neighbor[1]].visited = 1;
+      gridCopy[neighbor[0]][neighbor[1]].visited = true;
     });
-    // gridCopy[i][j] = 1;
+    // gridCopy[i][j].visited = 1;
   }
 };
 

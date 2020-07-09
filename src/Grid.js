@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import Instructions from './Instructions';
 import breadthFirstTraversal from './algorithms/breadthFirstTraversal';
 import depthFristTraversal from './algorithms/depthFirstTraversal';
+import dijkstra from './algorithms/dijkstras2';
 import { getUnvisitedNeighbors } from './algorithms/helperFunctions';
 import './App.css';
 
@@ -30,6 +31,11 @@ const Grid = () => {
   const startingNode = useRef('');
   const stack = useRef([startingNode.current]);
 
+  const dijkstraQueue = useRef([[5, 0]]);
+  const dijkstraDistances = useRef({ '5,0': 1 });
+  const dijkstraPrevious = useRef({});
+  const shortestPath = useRef([]);
+
   const runningReference = useRef(running);
 
   const runSimulation = useCallback(() => {
@@ -48,10 +54,50 @@ const Grid = () => {
       if (algorithm.current === 'Depth First') {
         depthFristTraversal(gridCopy, stack.current, getUnvisitedNeighbors);
       }
+      if (algorithm.current === 'Dijkstra') {
+        // dijkstra(
+        //   gridCopy,
+        //   dijkstraQueue.current,
+        //   [5, 0],
+        //   [12, 0],
+        //   getUnvisitedNeighbors,
+        //   setRunning,
+        //   dijkstraDistances.current,
+        //   dijkstraPrevious.current,
+        //   runningReference
+        // );
+        dijkstra(
+          gridCopy,
+          dijkstraQueue.current,
+          getUnvisitedNeighbors,
+          dijkstraDistances.current,
+          dijkstraPrevious.current,
+          [8, 12],
+          runningReference,
+          setRunning,
+          shortestPath
+        );
+      }
 
       gridRef.current = gridCopy;
+      if (shortestPath.current.length) {
+        setInterval(() => {
+          if (shortestPath.current.length) animateShortestPath();
+        }, 50);
+        // animateShortestPath();
+      }
       return gridCopy;
     });
+
+    function animateShortestPath() {
+      let current = shortestPath.current.shift();
+      let gridCopy = JSON.parse(JSON.stringify(gridRef.current));
+      gridCopy[current[0]][current[1]].shortestPath = true;
+      gridRef.current = gridCopy;
+      setGrid(gridCopy);
+      // console.log(gridCopy);
+      console.log('hi');
+    }
 
     let numberOfZeros = 0;
     for (let row = 0; row < numRows; row++) {
@@ -155,6 +201,8 @@ const Grid = () => {
       algorithm.current = 'Breadth First';
     } else if (e.target.innerHTML === 'Depth First') {
       algorithm.current = 'Depth First';
+    } else if (e.target.innerHTML === 'Dijkstra') {
+      algorithm.current = 'Dijkstra';
     }
     console.log(algorithm.current);
   };
@@ -179,8 +227,19 @@ const Grid = () => {
             width: 20,
             height: 20,
           }}
+          // className={`cell ${
+          //   grid[i][j].visited
+          //     ? 'visited'
+          //     : grid[i][j].wall
+          //     ? 'wall'
+          //     : grid[i][j].on
+          //     ? 'on'
+          //     : ''
+          // }`}
           className={`cell ${
-            grid[i][j].visited
+            grid[i][j].shortestPath
+              ? 'shortest-path'
+              : grid[i][j].visited
               ? 'visited'
               : grid[i][j].wall
               ? 'wall'
@@ -221,6 +280,7 @@ const Grid = () => {
       </button>
       <button onClick={selectAlgorithm}>Breadth First</button>
       <button onClick={selectAlgorithm}>Depth First</button>
+      <button onClick={selectAlgorithm}>Dijkstra</button>
       <button
         onClick={() => {
           return new Promise((resolve, reject) => {

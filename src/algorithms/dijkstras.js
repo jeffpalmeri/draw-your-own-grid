@@ -10,24 +10,30 @@ const generateEmptyGrid = () => {
   return grid;
 };
 let grid = generateEmptyGrid();
-console.log(grid);
+// console.log(grid);
 
-function dijkstra(grid, start, end) {
-  const queue = [start];
-  const distances = {};
-  const previous = {};
-  const visited = {};
-
-  // Build up initial state
-  distances[start] = 0;
-  previous[start] = null;
-
-  while (queue.length) {
+function dijkstra(
+  grid,
+  queue,
+  start,
+  end,
+  getUnvisitedNeighbors,
+  setRunning,
+  distances,
+  previous,
+  runningReference
+) {
+  if (queue.length) {
     let currentNode = queue.shift();
-    visited[currentNode] = true;
+    // visited[currentNode] = true;
+    // grid[currentNode[0]][currentNode[1]].visited = true;
 
     if (currentNode[0] === end[0] && currentNode[1] === end[1]) {
       console.log('this is the end');
+      console.log(createShortestPath(previous, start, end));
+      runningReference.current = false;
+      return setRunning(false);
+      return grid;
       return createShortestPath(previous, start, end);
       // We have reached the finish.
       // run getShortestPath() to return the shortest path array.
@@ -38,19 +44,21 @@ function dijkstra(grid, start, end) {
       currentNode[1]
     );
     currentNodesNeighors.forEach((neighbor) => {
-      if (!visited[neighbor]) {
-        queue.push(neighbor);
-      }
+      queue.push(neighbor);
+      grid[currentNode[0]][currentNode[1]].visited = true;
+      // if (!visited[neighbor]) {
+      //   queue.push(neighbor);
+      // }
       if (!distances[neighbor]) {
         distances[neighbor] = distances[currentNode] + 1;
         previous[neighbor] = currentNode;
       }
-      if (distances[neighbor]) {
-        if (distances[currentNode] + 1 < distances[neighbor]) {
-          distances[neighbor] = distances[currentNode] + 1;
-          previous[neighbor] = currentNode;
-        }
-      }
+      // if (distances[neighbor]) {
+      //   if (distances[currentNode] + 1 < distances[neighbor]) {
+      //     distances[neighbor] = distances[currentNode] + 1;
+      //     previous[neighbor] = currentNode;
+      //   }
+      // }
     });
   }
 }
@@ -67,39 +75,39 @@ function createShortestPath(previous, start, end) {
   return shortestPath;
 }
 
-function getUnvisitedNeighbors(grid, i, j) {
-  let neigh = [];
-  // if the cell is within the bounds of the grid && is not a wall && is turned on && is not visited
-  if (
-    i + 1 < grid.length &&
-    grid[i + 1][j].on &&
-    !grid[i + 1][j].wall &&
-    !grid[i + 1][j].visited
-  )
-    neigh.push([i + 1, j]);
-  if (
-    i - 1 >= 0 &&
-    grid[i - 1][j].on &&
-    !grid[i - 1][j].wall &&
-    !grid[i - 1][j].visited
-  )
-    neigh.push([i - 1, j]);
-  if (
-    j + 1 < grid[i].length &&
-    grid[i][j + 1].on &&
-    !grid[i][j + 1].wall &&
-    !grid[i][j + 1].visited
-  )
-    neigh.push([i, j + 1]);
-  if (
-    j - 1 >= 0 &&
-    grid[i][j - 1].on &&
-    !grid[i][j - 1].wall &&
-    !grid[i][j - 1].visited
-  )
-    neigh.push([i, j - 1]);
-  return neigh;
-}
+// function getUnvisitedNeighbors(grid, i, j) {
+//   let neigh = [];
+//   // if the cell is within the bounds of the grid && is not a wall && is turned on && is not visited
+//   if (
+//     i + 1 < grid.length &&
+//     grid[i + 1][j].on &&
+//     !grid[i + 1][j].wall &&
+//     !grid[i + 1][j].visited
+//   )
+//     neigh.push([i + 1, j]);
+//   if (
+//     i - 1 >= 0 &&
+//     grid[i - 1][j].on &&
+//     !grid[i - 1][j].wall &&
+//     !grid[i - 1][j].visited
+//   )
+//     neigh.push([i - 1, j]);
+//   if (
+//     j + 1 < grid[i].length &&
+//     grid[i][j + 1].on &&
+//     !grid[i][j + 1].wall &&
+//     !grid[i][j + 1].visited
+//   )
+//     neigh.push([i, j + 1]);
+//   if (
+//     j - 1 >= 0 &&
+//     grid[i][j - 1].on &&
+//     !grid[i][j - 1].wall &&
+//     !grid[i][j - 1].visited
+//   )
+//     neigh.push([i, j - 1]);
+//   return neigh;
+// }
 
 // function getUnivsitedNeighbors(grid, i, j) {
 //   let neigh = [];
@@ -109,4 +117,5 @@ function getUnvisitedNeighbors(grid, i, j) {
 //   if (j - 1 >= 0) neigh.push([i, j - 1]);
 //   return neigh;
 // }
-console.log(dijkstra(grid, [2, 0], [0, 4]));
+// console.log(dijkstra(grid, [], [2, 0], [0, 4]));
+export default dijkstra;
