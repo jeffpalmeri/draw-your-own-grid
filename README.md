@@ -1,3 +1,5 @@
+This project is deployed with Netlify here: https://elated-lovelace-f0b1bf.netlify.app/
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
