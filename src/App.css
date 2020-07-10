@@ -36,6 +36,16 @@ body {
   border: 1px solid black;
 }
 
+.start {
+  background-color: hotpink;
+  border: 1px solid black;
+}
+
+.end {
+  background-color: indigo;
+  border: 1px solid black;
+}
+
 .shortest-path {
   background-color: greenyellow;
   border: 1px solid black;

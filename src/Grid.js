@@ -24,23 +24,24 @@ const Grid = () => {
   const [grid, setGrid] = useState(() => generateEmptyGrid());
   const [leftMousedown, setLeftMousedown] = useState(false);
   const [rightMousedown, setRightMousedown] = useState(false);
-
   const [running, setRunning] = useState(false);
   const algorithm = useRef('');
   const gridRef = useRef(grid);
   const startingNode = useRef('');
   const stack = useRef([startingNode.current]);
 
-  const dijkstraQueue = useRef([[5, 0]]);
-  const dijkstraDistances = useRef({ '5,0': 1 });
+  const dijkstraQueue = useRef([]);
+  const dijkstraDistances = useRef();
   const dijkstraPrevious = useRef({});
   const shortestPath = useRef([]);
+  const [dijkstraStart, setDijkstraStart] = useState([]);
+  const [dijkstraEnd, setDijkstraEnd] = useState([]);
 
   const runningReference = useRef(running);
 
   const runSimulation = useCallback(() => {
     if (!runningReference.current) return;
-    if (!stack.current.length) {
+    if (!stack.current.length && !dijkstraQueue.current.length) {
       setRunning(false);
       return;
     }
@@ -55,24 +56,14 @@ const Grid = () => {
         depthFristTraversal(gridCopy, stack.current, getUnvisitedNeighbors);
       }
       if (algorithm.current === 'Dijkstra') {
-        // dijkstra(
-        //   gridCopy,
-        //   dijkstraQueue.current,
-        //   [5, 0],
-        //   [12, 0],
-        //   getUnvisitedNeighbors,
-        //   setRunning,
-        //   dijkstraDistances.current,
-        //   dijkstraPrevious.current,
-        //   runningReference
-        // );
+        console.log('click!!!');
         dijkstra(
           gridCopy,
           dijkstraQueue.current,
           getUnvisitedNeighbors,
           dijkstraDistances.current,
           dijkstraPrevious.current,
-          [8, 12],
+          [8, 13],
           runningReference,
           setRunning,
           shortestPath
@@ -81,22 +72,28 @@ const Grid = () => {
 
       gridRef.current = gridCopy;
       if (shortestPath.current.length) {
-        setInterval(() => {
-          if (shortestPath.current.length) animateShortestPath();
-        }, 50);
+        // setInterval(() => {
+        //   if (shortestPath.current.length) animateShortestPath();
+        // }, 75);
+        animationInterval();
         // animateShortestPath();
       }
       return gridCopy;
     });
 
+    function animationInterval() {
+      setInterval(() => {
+        if (shortestPath.current.length) animateShortestPath();
+      }, 75);
+    }
+
     function animateShortestPath() {
       let current = shortestPath.current.shift();
+      console.log(current);
       let gridCopy = JSON.parse(JSON.stringify(gridRef.current));
       gridCopy[current[0]][current[1]].shortestPath = true;
       gridRef.current = gridCopy;
       setGrid(gridCopy);
-      // console.log(gridCopy);
-      console.log('hi');
     }
 
     let numberOfZeros = 0;
@@ -194,6 +191,16 @@ const Grid = () => {
     stack.current = [];
     startingNode.current = '';
     setRunning(false);
+
+    let gridCopy = JSON.parse(JSON.stringify(grid));
+    gridCopy[8][2].start = true;
+    gridCopy[8][13].end = true;
+    console.log(gridCopy[8][13]);
+    dijkstraQueue.current = [[8, 2]];
+    dijkstraDistances.current = { '8,2': 1 };
+    dijkstraPrevious.current = {};
+    shortestPath.current = [];
+    // setGrid(gridCopy);
   };
 
   const selectAlgorithm = (e) => {
@@ -203,6 +210,15 @@ const Grid = () => {
       algorithm.current = 'Depth First';
     } else if (e.target.innerHTML === 'Dijkstra') {
       algorithm.current = 'Dijkstra';
+      setDijkstraStart([8, 2]);
+      setDijkstraEnd([8, 13]);
+      dijkstraDistances.current = { '8,2': 1 };
+      dijkstraQueue.current = [[8, 2]];
+      let gridCopy = JSON.parse(JSON.stringify(grid));
+      gridCopy[8][2].start = true;
+      gridCopy[8][13].end = true;
+      console.log(gridCopy[8][13]);
+      setGrid(gridCopy);
     }
     console.log(algorithm.current);
   };
@@ -227,18 +243,13 @@ const Grid = () => {
             width: 20,
             height: 20,
           }}
-          // className={`cell ${
-          //   grid[i][j].visited
-          //     ? 'visited'
-          //     : grid[i][j].wall
-          //     ? 'wall'
-          //     : grid[i][j].on
-          //     ? 'on'
-          //     : ''
-          // }`}
           className={`cell ${
             grid[i][j].shortestPath
               ? 'shortest-path'
+              : grid[i][j].start
+              ? 'start'
+              : grid[i][j].end
+              ? 'end'
               : grid[i][j].visited
               ? 'visited'
               : grid[i][j].wall

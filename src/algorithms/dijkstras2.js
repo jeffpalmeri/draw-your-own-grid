@@ -9,16 +9,19 @@ const dijkstras = (
   setRunning,
   shortestPath
 ) => {
+  console.log('the algo is running');
   if (queue.length) {
     let currentVertex = queue.shift();
+    // gridCopy[currentVertex[0]][currentVertex[1]].visited = true;
     let i = currentVertex[0];
     let j = currentVertex[1];
 
     if (currentVertex[0] === end[0] && currentVertex[1] === end[1]) {
       runningReference.current = false;
       setRunning(false);
-      const path = createShortestPath(previous, [5, 0], end);
-      shortestPath.current = path;
+      const path = createShortestPath(previous, [8, 2], end);
+      return (shortestPath.current = path);
+      // console.log('shortest path: ', JSON.parse(JSON.stringify(shortestPath)));
 
       // animateShortestPath(shortestPath, gridCopy);
       // return console.log(createShortestPath(previous, [5, 0], end));
@@ -35,7 +38,6 @@ const dijkstras = (
         previous[neighbor] = currentVertex;
       }
     });
-    // gridCopy[i][j].visited = 1;
   }
 };
 
