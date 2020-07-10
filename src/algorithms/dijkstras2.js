@@ -53,25 +53,25 @@ function createShortestPath(previous, start, end) {
   return shortestPath;
 }
 
-function animateShortestPath(shortestPath, gridCopy) {
-  // shortestPath.forEach((node) => {
-  //   // setTimeout(() => {
-  //   gridCopy[node[0]][node[1]].shortestPath = true;
-  //   console.log(gridCopy[node[0]][node[1]]);
-  //   // }, 1000);
-  // });
-  // for (let i = 0; i < shortestPath.length; i++) {
-  //   setInterval(() => {
-  //     gridCopy[shortestPath[i][0]][shortestPath[i][1]].shortestPath = true;
-  //   }, 1000);
-  // }
-  console.log(shortestPath);
-  // if (shortestPath.current.length) {
-  console.log(shortestPath);
-  let current = shortestPath.current.shift();
-  gridCopy[current[0]][current[1]].shortestPath = true;
-  // }
-  setTimeout(animateShortestPath, 2000);
-}
+// function animateShortestPath(shortestPath, gridCopy) {
+//   // shortestPath.forEach((node) => {
+//   //   // setTimeout(() => {
+//   //   gridCopy[node[0]][node[1]].shortestPath = true;
+//   //   console.log(gridCopy[node[0]][node[1]]);
+//   //   // }, 1000);
+//   // });
+//   // for (let i = 0; i < shortestPath.length; i++) {
+//   //   setInterval(() => {
+//   //     gridCopy[shortestPath[i][0]][shortestPath[i][1]].shortestPath = true;
+//   //   }, 1000);
+//   // }
+//   console.log(shortestPath);
+//   // if (shortestPath.current.length) {
+//   console.log(shortestPath);
+//   let current = shortestPath.current.shift();
+//   gridCopy[current[0]][current[1]].shortestPath = true;
+//   // }
+//   setTimeout(animateShortestPath, 2000);
+// }
 
 export default dijkstras;

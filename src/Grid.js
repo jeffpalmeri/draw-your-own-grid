@@ -34,8 +34,8 @@ const Grid = () => {
   const dijkstraDistances = useRef();
   const dijkstraPrevious = useRef({});
   const shortestPath = useRef([]);
-  const [dijkstraStart, setDijkstraStart] = useState([]);
-  const [dijkstraEnd, setDijkstraEnd] = useState([]);
+  // const [dijkstraStart, setDijkstraStart] = useState([]);
+  // const [dijkstraEnd, setDijkstraEnd] = useState([]);
 
   const runningReference = useRef(running);
 
@@ -210,8 +210,8 @@ const Grid = () => {
       algorithm.current = 'Depth First';
     } else if (e.target.innerHTML === 'Dijkstra') {
       algorithm.current = 'Dijkstra';
-      setDijkstraStart([8, 2]);
-      setDijkstraEnd([8, 13]);
+      // setDijkstraStart([8, 2]);
+      // setDijkstraEnd([8, 13]);
       dijkstraDistances.current = { '8,2': 1 };
       dijkstraQueue.current = [[8, 2]];
       let gridCopy = JSON.parse(JSON.stringify(grid));
